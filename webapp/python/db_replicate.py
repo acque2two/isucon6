@@ -50,7 +50,7 @@ def main():
     print("replicate")
 
     r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
-    cursor = dbh().cursor()
+    cursor = dbh()
 
     cursor.execute("SELECT * FROM user")
     for u in cursor.fetchall():
