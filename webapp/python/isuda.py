@@ -18,12 +18,12 @@ app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
 app.secret_key = 'tonymoris'
 
 _config = {
-    'db_host':       os.environ.get('ISUDA_DB_HOST', 'localhost'),
-    'db_port':       int(os.environ.get('ISUDA_DB_PORT', '3306')),
-    'db_user':       os.environ.get('ISUDA_DB_USER', 'root'),
-    'db_password':   os.environ.get('ISUDA_DB_PASSWORD', ''),
-    'isutar_origin': os.environ.get('ISUTAR_ORIGIN', 'http://localhost:5001'),
-    'isupam_origin': os.environ.get('ISUPAM_ORIGIN', 'http://localhost:5050'),
+    'db_host':       'localhost',
+    'db_port':       3306,
+    'db_user':       "isucon",
+    'db_password':   "isucon",
+    'isutar_origin': "http://localhost:5001",
+    'isupam_origin': "http://localhost:5050"),
 }
 
 def config(key):
@@ -37,10 +37,10 @@ def dbh():
         return request.db
     else:
         request.db = MySQLdb.connect(**{
-            'host': config('db_host'),
-            'port': config('db_port'),
-            'user': config('db_user'),
-            'passwd': config('db_password'),
+            'host': "localhost",
+            'port': 3306,
+            'user': "isucon",
+            'passwd': "isucon",
             'db': 'isuda',
             'charset': 'utf8mb4',
             'cursorclass': MySQLdb.cursors.DictCursor,
