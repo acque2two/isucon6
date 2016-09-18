@@ -15,3 +15,17 @@ join_buffer_size = 512K # INDEXなしのJOINは愚策
 read_buffer_size = 1M
 read_rnd_buffer_size = 1M
 sort_buffer_size = 32M # ソートにメモリを少しでも多く割り当てる
+socket          = /var/run/mysqld/mysqld.sock
+nice            = 20
+
+pid-file        = /var/run/mysqld/mysqld.pid
+socket          = /var/run/mysqld/mysqld.sock
+port            = 3306
+basedir         = /usr
+datadir         = /var/lib/mysql
+tmpdir          = /tmp
+lc-messages-dir = /usr/share/mysql
+skip-external-locking
+bind-address            = 127.0.0.1
+max_allowed_packet      = 16M
+log_error = /var/log/mysql/error.log
