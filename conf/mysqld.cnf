@@ -1,0 +1,18 @@
+[mysqld]
+query_cache_size = 512M
+innodb_buffer_pool_size = 2000M
+#innodb_additional_mem_pool_size = 20M
+innodb_buffer_pool_instances = 32
+innodb_buffer_pool_dump_at_shutdown =1 # InnoDB バッファの状況を保存する
+innodb_buffer_pool_load_at_startup = 1 # 上データを読む
+innodb_log_file_size = 512M # これを増やすと書き込みがゆるやかになる
+innodb_log_buffer_size = 8M # INSERTが多ければ増やす
+innodb_flush_log_at_trx_commit = 2 # logをflushしない
+innodb_thread_concurrency = 9
+innodb_flush_method = nosync # syncしない
+skip_innodb_doublewrite # double write機構を無効にしてI/O高速化
+innodb_autoextend_increment=64 
+join_buffer_size = 512K # JOINはあまり使わないほうが良いらしい
+read_buffer_size = 1M
+read_rnd_buffer_size = 1M
+sort_buffer_size = 32M # ソートにメモリを少しでも多く割り当てる
