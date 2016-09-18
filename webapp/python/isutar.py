@@ -66,8 +66,8 @@ def post_stars():
     if user == None or user == "":
         user = request.form['user']
 
-    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, 
-NOW())', (keyword, user))
+    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, '
+'NOW())', (keyword, user))
 
     return jsonify(result = 'ok')
 
