@@ -4,12 +4,12 @@ import hashlib
 import html
 import json
 import math
-import os
 import pathlib
 import random
 import re
 import string
 import urllib
+import redis
 from gevent import monkey; monkey.patch_all()
 
 static_folder = pathlib.Path(__file__).resolve().parent.parent / 'public'
@@ -18,10 +18,6 @@ app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
 app.secret_key = 'tonymoris'
 
 _config = {
-    'db_host':       'localhost',
-    'db_port':       3306,
-    'db_user':       "isucon",
-    'db_password':   "isucon",
     'isutar_origin': "http://localhost:5001",
     'isupam_origin': "http://localhost:5050",
 }
@@ -31,25 +27,6 @@ def config(key):
         return _config[key]
     else:
         raise "config value of %s undefined" % key
-
-def dbh():
-    if hasattr(request, 'db'):
-        return request.db
-    else:
-        request.db = MySQLdb.connect(**{
-            'host': "localhost",
-            'port': 3306,
-            'user': "isucon",
-            'passwd': "isucon",
-            'db': 'isuda',
-            'charset': 'utf8mb4',
-            'cursorclass': MySQLdb.cursors.DictCursor,
-            'autocommit': True,
-        })
-        cur = request.db.cursor()
-        cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
-        cur.execute('SET NAMES utf8mb4')
-        return request.db
 
 @app.teardown_request
 def close_db(exception=None):
@@ -66,9 +43,11 @@ def set_name(func):
     def wrapper(*args, **kwargs):
         if "user_id" in session:
             request.user_id = user_id = session['user_id']
-            cur = dbh().cursor()
-            cur.execute('SELECT name FROM user WHERE id = %s', (user_id, ))
-            user = cur.fetchone()
+            # cur = dbh().cursor()
+            # cur.execute('SELECT name FROM user WHERE id = %s', (user_id, ))
+            # user = cur.fetchone()
+            r = redis.Redis(unix_socket_path='/var/run/redis/redis.sock')
+            user = r.hget('users:' + user_id, 'name')
             if user == None:
                 abort(403)
 
