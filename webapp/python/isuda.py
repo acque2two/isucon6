@@ -50,7 +50,6 @@ def set_name(func):
             # cur = dbh().cursor()
             # cur.execute('SELECT name FROM user WHERE id = %s', (user_id, ))
             # user = cur.fetchone()
-            r = redis.Redis(unix_socket_path='/var/run/redis/redis.sock')
             user = r.hget('users:' + user_id, 'name')
             if user == None:
                 abort(403)
