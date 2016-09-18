@@ -42,8 +42,6 @@ cursor = request.db.cursor()
 cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
 cursor.execute('SET NAMES utf8mb4')
 
-return request.db
-
 def main():
     print("replicate")
 
