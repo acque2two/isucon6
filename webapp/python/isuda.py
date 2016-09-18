@@ -284,7 +284,7 @@ def htmlify(content):
 
     keywords_raw = []
     keywords = []
-    for i in range(keywords_max,keywords_min-1):
+    for i in range(keywords_max,keywords_min-1,-1):
         cur.execute('select keyword from entry_contlen where contlen = ' + str(i))
         keywords_raw.append(cur.fetchall())
 
