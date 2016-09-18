@@ -3,6 +3,7 @@ import MySQLdb.cursors
 import os
 import html
 import urllib
+from gevent import monkey; monkey.patch_all()
 
 app = Flask(__name__)
 
