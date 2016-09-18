@@ -1,0 +1,16 @@
+entries (
+  id
+  user_id
+  keyword
+  description
+  updated_at
+  created_at
+)
+
+users (
+  id
+  name
+  salt
+  password
+  created_at
+)
