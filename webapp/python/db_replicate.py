@@ -13,12 +13,12 @@ import string
 import urllib
 
 _config = {
-    'db_host':       'localhost',
-    'db_port':       3306,
-    'db_user':       "isucon",
-    'db_password':   "isucon",
-    'isutar_origin': "http://localhost:5001",
-    'isupam_origin': "http://localhost:5050",
+    "db_host":       'localhost',
+    "db_port":       3306,
+    "db_user":       "isucon",
+    "db_password":   "isucon",
+    "isutar_origin": "http://localhost:5001",
+    "isupam_origin": "http://localhost:5050",
 }
 
 def config(key):
@@ -48,7 +48,22 @@ def dbh():
 
 def main():
     print("replicate")
-    print(dbh())
+    r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
 
+    cursor = dbh().cursor()
+    cursor.execute("SELECT * FROM user")
+    for u in cursor.fetchall():
+        r.hset("users:" + u["id"], "name", u["name"])
+        r.hset("users:" + u["id"], "password", u["password"])
+        r.hset("users:" + u["id"], "salt", u["salt"])
+        r.hset("users:" + u["id"], "created_at", u["created_at"])
+
+    cursor.execute("SELECT * FROM entry")
+    for e in cursor.fetchall():
+        r.hset("entries:" + e["id"], "user_id", e["author_id"])
+        r.hset("entries:" + e["id"], "keyword", e["keyword"])
+        r.hset("entries:" + e["id"], "description", e["description"])
+        r.hset("entries:" + e["id"], "created_at", e["created_at"])
+        r.hset("entries:" + e["id"], "updated_at", e["updated_at"])
 
 main()
