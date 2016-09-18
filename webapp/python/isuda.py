@@ -250,7 +250,7 @@ def htmlify(content):
         return ''
 
     cur = dbh().cursor()
-    cur.execute('SELECT * FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC')
+    cur.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
     keywords = cur.fetchall()
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
     kw2sha = {}
@@ -266,6 +266,7 @@ def htmlify(content):
         result = re.sub(re.compile(hash), link, result)
 
     return re.sub(re.compile("\n"), "<br />", result)
+
 
 def load_stars(keyword):
     origin = config('isutar_origin')
@@ -283,4 +284,5 @@ def is_spam_contents(content):
     return False
 
 if __name__ == "__main__":
-    cProfile.run("app.run()")
+    # cProfile.run("app.run()")
+    app.run()
