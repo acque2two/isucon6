@@ -63,8 +63,29 @@ def main():
         r.hset("entries:" + str(e["id"]), "description", e["description"])
         r.hset("entries:" + str(e["id"]), "created_at", e["created_at"])
         r.hset("entries:" + str(e["id"]), "updated_at", e["updated_at"])
-        r.hset("keywords:" + e["keyword"], "id", str(e["id"]))
+        r.hset("entry_keywords:" + e["keyword"], "id", str(e["id"]))
         r.zadd("sorted_entry_ids:keyword_size", str(e["id"]), len(e["keyword"]))
         r.zadd("sorted_entry_ids:updated_at", str(e["id"]), e["updated_at2"])
+    
+    db = MySQLdb.connect(**{
+        "host": "localhost",
+        "port": 3306,
+        "user": "isucon",
+        "passwd": "isucon",
+        "db": 'isutar',
+        "charset": 'utf8mb4',
+        "cursorclass": MySQLdb.cursors.DictCursor,
+        "autocommit": True,
+    })
+
+    cursor = db.cursor()
+    cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+    cursor.execute('SET NAMES utf8mb4')
+
+    cursor.execute("SELECT * FROM star")
+    for s in cursor.fetchall():
+        r.hset("stars:" + str(s["id"]), "user_name", s["user_name"])
+        r.hset("stars:" + str(s["id"]), "keyword", s["keyword"])
+        r.hset("stars:" + str(s["id"]), "created_at", s["created_at"])
 
 main()
