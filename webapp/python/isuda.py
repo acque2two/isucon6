@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, abort, render_template, redirect, session, url_for
-import MySQLdb.cursors
 import hashlib
 import html
 import json
@@ -9,7 +8,6 @@ import random
 import re
 import string
 import urllib
-import redis
 from gevent import monkey; monkey.patch_all()
 import redis
 
@@ -199,11 +197,20 @@ def get_keyword(keyword):
     if keyword == '':
         abort(400)
 
-    cur = dbh().cursor()
-    cur.execute('SELECT * FROM entry WHERE keyword = %s', (keyword,))
-    entry = cur.fetchone()
-    if entry == None:
+    # cur.execute('SELECT * FROM entry WHERE keyword = %s', (keyword,))
+
+    _id = r.hget('entry_keywords:' + keyword, 'id')
+
+    if _id == None:
         abort(404)
+
+    entry = {}
+    entry.update({'id': r.hget('entries:' + _id, 'id')})
+    entry.update({'author_id': r.hget('entries:' + _id, 'user_id')})
+    entry.update({'keyword': r.hget('entries:' + _id, 'keyword')})
+    entry.update({'description': r.hget('entries:' + _id, 'description')})
+    entry.update({'created_at': r.hget('entries:' + _id, 'created_at')})
+    entry.update({'updated_at': r.hget('entries:' + _id, 'updated_at')})
 
     entry['html'] = htmlify(entry['description'])
     entry['stars'] = load_stars(entry['keyword'])
