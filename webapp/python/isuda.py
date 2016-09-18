@@ -64,12 +64,13 @@ def set_name(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         if "user_id" in session:
-            request.user_id   = user_id = session['user_id']
+            request.user_id = user_id = session['user_id']
             cur = dbh().cursor()
             cur.execute('SELECT name FROM user WHERE id = %s', (user_id, ))
             user = cur.fetchone()
             if user == None:
                 abort(403)
+
             request.user_name = user['name']
 
         return func(*args, **kwargs)
@@ -100,7 +101,14 @@ def get_index():
     page = int(request.args.get('page', '1'))
 
     cur = dbh().cursor()
-    cur.execute('SELECT * FROM entry ORDER BY updated_at DESC LIMIT %s OFFSET %s', (PER_PAGE, PER_PAGE * (page - 1),))
+    cur.execute(
+"""
+SELECT * FROM entry ORDER BY updated_at DESC LIMIT %s OFFSET %s
+"""
+        ,
+        (PER_PAGE, PER_PAGE * (page - 1),)
+    )
+
     entries = cur.fetchall()
     for entry in entries:
         entry['html'] = htmlify(entry['description'])
@@ -133,13 +141,17 @@ def create_keyword():
         abort(400)
 
     cur = dbh().cursor()
-    sql = """
-        INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
-        VALUES (%s,%s,%s,NOW(), NOW())
-        ON DUPLICATE KEY UPDATE
-        author_id = %s, keyword = %s, description = %s, updated_at = NOW()
+    cur.execute(
 """
-    cur.execute(sql, (user_id, keyword, description, user_id, keyword, description))
+INSERT INTO entry (author_id, keyword, description, created_at, updated_at)
+VALUES (%s,%s,%s,NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+author_id = %s, keyword = %s, description = %s, updated_at = NOW()
+"""
+        ,
+        (user_id, keyword, description, user_id, keyword, description)
+    )
+
     return redirect('/')
 
 @app.route('/register')
@@ -160,7 +172,14 @@ def post_register():
 
 def register(cur, user, password):
     salt = random_string(20)
-    cur.execute("INSERT INTO user (name, salt, password, created_at) VALUES (%s, %s, %s, NOW())", (user, salt, hashlib.sha1((salt + "password").encode('utf-8')).hexdigest(),))
+    cur.execute(
+"""
+INSERT INTO user (name, salt, password, created_at) VALUES (%s, %s, %s, NOW())
+"""
+        ,
+        (user, salt, hashlib.sha1((salt + "password").encode('utf-8')).hexdigest(),)
+    )
+
     cur.execute("SELECT LAST_INSERT_ID() AS last_insert_id")
     return cur.fetchone()['last_insert_id']
 
@@ -175,8 +194,10 @@ def get_login():
 @app.route('/login', methods=['POST'])
 def post_login():
     name = request.form['name']
+
     cur = dbh().cursor()
     cur.execute("SELECT * FROM user WHERE name = %s", (name, ))
+
     row = cur.fetchone()
     if row == None or row['password'] != hashlib.sha1((row['salt'] + request.form['password']).encode('utf-8')).hexdigest():
         abort(403)
