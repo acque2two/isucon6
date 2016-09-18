@@ -1,0 +1,8 @@
+# CLOUD_IMG: This file was created/modified by the Cloud Image build process
+UUID=92b7322a-d71d-4d13-b206-aec0afad9cf1	/	 ext4	defaults,discard,noatime,barrier=0	0 0
+
+# CLOUD_IMG: This file was created/modified by the Cloud Image build process
+# The following is used to dynamically configured additional
+# NICs. Do not remove unless you know what you are doing.
+none /etc/network/interfaces.dynamic.d tmpfs   nodev,noexec,nosuid,size=64K 0 0
+/dev/disk/cloud/azure_resource-part1	/mnt	auto	defaults,nofail,comment=cloudconfig	0	2
