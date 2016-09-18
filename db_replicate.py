@@ -18,7 +18,7 @@ _config = {
     'db_user':       "isucon",
     'db_password':   "isucon",
     'isutar_origin': "http://localhost:5001",
-    'isupam_origin': "http://localhost:5050"),
+    'isupam_origin': "http://localhost:5050",
 }
 
 def config(key):
