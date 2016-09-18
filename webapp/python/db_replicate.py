@@ -53,7 +53,9 @@ def main():
         r.hset("users:" + str(u["id"]), "password", u["password"])
         r.hset("users:" + str(u["id"]), "salt", u["salt"])
         r.hset("users:" + str(u["id"]), "created_at", u["created_at"])
-
+    
+    r.zremrangebyscore("sorted_entry_ids:keyword_size", "-inf", "+inf")
+    r.zremrangebyscore("sorted_entry_ids:updated_at", "-inf", "+inf")
     cursor.execute("SELECT * FROM entry")
     for e in cursor.fetchall():
         r.hset("entries:" + str(e["id"]), "user_id", e["author_id"])
@@ -63,5 +65,6 @@ def main():
         r.hset("entries:" + str(e["id"]), "updated_at", e["updated_at"])
         r.zadd("sorted_entry_ids:keyword_size", len(e["keyword"]), str(e["id"]))
         r.zadd("sorted_entry_ids:updated_at", e["updated_at"], str(e["id"]))
+        print(e["updated_at"])
 
 main()
