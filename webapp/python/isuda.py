@@ -51,6 +51,10 @@ def dbh():
         cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cur.execute('SET NAMES utf8mb4')
 
+        cur.execute('SELECT keyword FROM entry_contlen ORDER BY contlen DESC')
+        global contlen
+        contlen = cur.fetchall()
+
         return request.db
 
 def get_isutar_db():
@@ -272,10 +276,25 @@ def htmlify(content):
         return ''
 
     cur = dbh().cursor()
-    cur.execute('SELECT * FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC')
-    keywords = cur.fetchall()
+
+    cur.execute('select max(contlen) as max from entry_contlen')
+    keywords_max = cur.fetchone()["max"]
+    cur.execute('select min(contlen) as min from entry_contlen')
+    keywords_min = cur.fetchone()["min"]
+
+    keywords_raw = []
+    keywords = []
+    for i in range(keywords_max,keywords_min-1):
+        cur.execute('select keyword from entry_contlen where contlen = ' + str(i))
+        keywords_raw.append(cur.fetchall())
+
+    for i in keywords_raw:
+        for j in i:
+            keywords.append(j)
 
 
+    # global contlen
+    # keywords = contlen
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
     kw2sha = {}
     def replace_keyword(m):
