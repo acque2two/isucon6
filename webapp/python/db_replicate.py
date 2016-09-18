@@ -27,23 +27,23 @@ def config(key):
     else:
         raise "config value of %s undefined" % key
 
-db = MySQLdb.connect(**{
-    'host': "localhost",
-    'port': 3306,
-    'user': "isucon",
-    'passwd': "isucon",
-    'db': 'isuda',
-    'charset': 'utf8mb4',
-    'cursorclass': MySQLdb.cursors.DictCursor,
-    'autocommit': True,
-})
-
-cursor = db.cursor()
-cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
-cursor.execute('SET NAMES utf8mb4')
-
 def main():
     print("replicate")
+
+    db = MySQLdb.connect(**{
+        "host": "localhost",
+        "port": 3306,
+        "user": "isucon",
+        "passwd": "isucon",
+        "db": 'isuda',
+        "charset": 'utf8mb4',
+        "cursorclass": MySQLdb.cursors.DictCursor,
+        "autocommit": True,
+    })
+
+    cursor = db.cursor()
+    cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+    cursor.execute('SET NAMES utf8mb4')
 
     r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
 
