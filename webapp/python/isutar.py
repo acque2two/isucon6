@@ -12,10 +12,10 @@ def dbh():
         return request.db
     else:
         request.db = MySQLdb.connect(**{
-            'host': os.environ.get('ISUTAR_DB_HOST', 'localhost'),
-            'port': int(os.environ.get('ISUTAR_DB_PORT', '3306')),
-            'user': os.environ.get('ISUTAR_DB_USER', 'root'),
-            'passwd': os.environ.get('ISUTAR_DB_PASSWORD', ''),
+            'host': 'localhost',
+            'port':'3306',
+            'user': 'root',
+            'passwd': '',
             'db': 'isutar',
             'charset': 'utf8mb4',
             'cursorclass': MySQLdb.cursors.DictCursor,
@@ -66,8 +66,8 @@ def post_stars():
     if user == None or user == "":
         user = request.form['user']
 
-    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, 
-NOW())', (keyword, user))
+    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, '
+'NOW())', (keyword, user))
 
     return jsonify(result = 'ok')
 
