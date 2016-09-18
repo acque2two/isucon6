@@ -11,6 +11,7 @@ import re
 import string
 import urllib
 from gevent import monkey; monkey.patch_all()
+import cProfile
 
 static_folder = pathlib.Path(__file__).resolve().parent.parent / 'public'
 app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
@@ -282,4 +283,4 @@ def is_spam_contents(content):
     return False
 
 if __name__ == "__main__":
-    app.run()
+    cProfile.run("app.run()")
