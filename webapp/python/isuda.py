@@ -73,9 +73,6 @@ def get_isutar_db():
         cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cursor.execute('SET NAMES utf8mb4')
 
-        cursor.execute('SELECT keyword FROM entry_contlen ORDER BY contlen DESC')
-        global contlen
-        contlen = cursor.fetchall()
 
         return request.isutar_db
 
