@@ -27,30 +27,27 @@ def config(key):
     else:
         raise "config value of %s undefined" % key
 
-def dbh():
-    if hasattr(request, 'db'):
-        return request.db
-    else:
-        request.db = MySQLdb.connect(**{
-            'host': "localhost",
-            'port': 3306,
-            'user': "isucon",
-            'passwd': "isucon",
-            'db': 'isuda',
-            'charset': 'utf8mb4',
-            'cursorclass': MySQLdb.cursors.DictCursor,
-            'autocommit': True,
-        })
-        cur = request.db.cursor()
-        cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
-        cur.execute('SET NAMES utf8mb4')
-        return request.db
+db = MySQLdb.connect(**{
+    'host': "localhost",
+    'port': 3306,
+    'user': "isucon",
+    'passwd': "isucon",
+    'db': 'isuda',
+    'charset': 'utf8mb4',
+    'cursorclass': MySQLdb.cursors.DictCursor,
+    'autocommit': True,
+})
+
+cursor = request.db.cursor()
+cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+cursor.execute('SET NAMES utf8mb4')
+
+return request.db
 
 def main():
     print("replicate")
 
     r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
-    cursor = dbh()
 
     cursor.execute("SELECT * FROM user")
     for u in cursor.fetchall():
