@@ -56,7 +56,7 @@ def main():
     
     r.zremrangebyscore("sorted_entry_ids:keyword_size", "-inf", "+inf")
     r.zremrangebyscore("sorted_entry_ids:updated_at", "-inf", "+inf")
-    cursor.execute("SELECT * FROM entry")
+    cursor.execute("SELECT *, UNIX_TIMESTAMP(updated_at) AS updated_at2 FROM entry")
     for e in cursor.fetchall():
         r.hset("entries:" + str(e["id"]), "user_id", e["author_id"])
         r.hset("entries:" + str(e["id"]), "keyword", e["keyword"])
@@ -64,7 +64,7 @@ def main():
         r.hset("entries:" + str(e["id"]), "created_at", e["created_at"])
         r.hset("entries:" + str(e["id"]), "updated_at", e["updated_at"])
         r.zadd("sorted_entry_ids:keyword_size", len(e["keyword"]), str(e["id"]))
-        r.zadd("sorted_entry_ids:updated_at", e["updated_at"], str(e["id"]))
-        print(e["updated_at"])
+        r.zadd("sorted_entry_ids:updated_at", e["updated_at2"], str(e["id"]))
+        print(e["updated_at2"])
 
 main()
