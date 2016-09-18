@@ -48,9 +48,10 @@ def dbh():
 
 def main():
     print("replicate")
-    r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
 
+    r = redis.Redis(unix_socket_path="/var/run/redis/redis.sock")
     cursor = dbh().cursor()
+
     cursor.execute("SELECT * FROM user")
     for u in cursor.fetchall():
         r.hset("users:" + u["id"], "name", u["name"])
