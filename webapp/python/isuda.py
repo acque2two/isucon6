@@ -50,9 +50,7 @@ def dbh():
         cur = request.db.cursor()
         cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cur.execute('SET NAMES utf8mb4')
-        cur.execute('SELECT keyword FROM entry_contlen ORDER BY contlen DESC')
-        global contlen
-        contlen = cur.fetchall()
+
         return request.db
 
 def get_isutar_db():
@@ -69,10 +67,10 @@ def get_isutar_db():
             "cursorclass": MySQLdb.cursors.DictCursor,
             "autocommit": True,
         })
+
         cursor = request.isutar_db.cursor()
         cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cursor.execute('SET NAMES utf8mb4')
-
 
         return request.isutar_db
 
@@ -273,8 +271,11 @@ def htmlify(content):
     if content == None or content == '':
         return ''
 
-    global contlen
-    keywords = contlen
+    cur = dbh().cursor()
+    cur.execute('SELECT * FROM entry ORDER BY CHARACTER_LENGTH(keyword) DESC')
+    keywords = cur.fetchall()
+
+
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
     kw2sha = {}
     def replace_keyword(m):
