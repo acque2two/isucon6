@@ -4,12 +4,14 @@ import hashlib
 import html
 import json
 import math
+import os
 import pathlib
 import random
 import re
 import string
 import urllib
 from gevent import monkey; monkey.patch_all()
+import cProfile
 
 static_folder = pathlib.Path(__file__).resolve().parent.parent / 'public'
 app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
@@ -18,7 +20,7 @@ app.secret_key = 'tonymoris'
 
 _config = {
     'db_host':       '127.0.0.1',
-    'db_port':       3307,
+    'db_port':       3306,
     'db_user':       "isucon",
     'db_password':   "isucon",
     'isutar_origin': "http://localhost:5001",
@@ -37,7 +39,7 @@ def dbh():
     else:
         request.db = MySQLdb.connect(**{
             'host': "127.0.0.1",
-            'port': 3307,
+            'port': 3306,
             'user': "isucon",
             'passwd': "isucon",
             'db': 'isuda',
@@ -48,6 +50,9 @@ def dbh():
         cur = request.db.cursor()
         cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cur.execute('SET NAMES utf8mb4')
+        cur.execute('SELECT keyword FROM entry_contlen ORDER BY contlen DESC')
+        global contlen
+        contlen = cur.fetchall()
         return request.db
 
 def get_isutar_db():
@@ -56,7 +61,7 @@ def get_isutar_db():
     else:
         request.isutar_db = MySQLdb.connect(**{
             "host": "localhost",
-            "port": 3307,
+            "port": 3306,
             "user": "isucon",
             "passwd": "isucon",
             "db": "isutar",
@@ -68,8 +73,8 @@ def get_isutar_db():
         cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cursor.execute('SET NAMES utf8mb4')
 
+        cursor.execute('SELECT keyword FROM entry_contlen ORDER BY contlen DESC')
         global contlen
-        cursor.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
         contlen = cursor.fetchall()
 
         return request.isutar_db
@@ -270,6 +275,7 @@ def delete_keyword(keyword):
 def htmlify(content):
     if content == None or content == '':
         return ''
+
     global contlen
     keywords = contlen
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
