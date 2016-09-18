@@ -61,6 +61,13 @@ def post_stars():
     cur = dbh().cursor()
     cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, NOW())', (keyword, request.args.get('user', '', )))
 
+    user = request.args.get('user', "")
+    if user == None or user == "":
+        user = request.form['user']
+
+    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, 
+NOW())', (keyword, user))
+
     return jsonify(result = 'ok')
 
 if __name__ == "__main__":
