@@ -11,12 +11,6 @@ import random
 import re
 import string
 import urllib
-from gevent import monkey; monkey.patch_all()
-
-static_folder = pathlib.Path(__file__).resolve().parent.parent / 'public'
-app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
-
-app.secret_key = 'tonymoris'
 
 _config = {
     'db_host':       'localhost',
@@ -53,6 +47,8 @@ def dbh():
         return request.db
 
 def main():
+    print("replicate")
     print(dbh())
+
 
 main()
