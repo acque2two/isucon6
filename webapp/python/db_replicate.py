@@ -49,17 +49,17 @@ def main():
 
     cursor.execute("SELECT * FROM user")
     for u in cursor.fetchall():
-        r.hset("users:" + u["id"], "name", u["name"])
-        r.hset("users:" + u["id"], "password", u["password"])
-        r.hset("users:" + u["id"], "salt", u["salt"])
-        r.hset("users:" + u["id"], "created_at", u["created_at"])
+        r.hset("users:" + str(u["id"]), "name", u["name"])
+        r.hset("users:" + str(u["id"]), "password", u["password"])
+        r.hset("users:" + str(u["id"]), "salt", u["salt"])
+        r.hset("users:" + str(u["id"]), "created_at", u["created_at"])
 
     cursor.execute("SELECT * FROM entry")
     for e in cursor.fetchall():
-        r.hset("entries:" + e["id"], "user_id", e["author_id"])
-        r.hset("entries:" + e["id"], "keyword", e["keyword"])
-        r.hset("entries:" + e["id"], "description", e["description"])
-        r.hset("entries:" + e["id"], "created_at", e["created_at"])
-        r.hset("entries:" + e["id"], "updated_at", e["updated_at"])
+        r.hset("entries:" + str(e["id"]), "user_id", e["author_id"])
+        r.hset("entries:" + str(e["id"]), "keyword", e["keyword"])
+        r.hset("entries:" + str(e["id"]), "description", e["description"])
+        r.hset("entries:" + str(e["id"]), "created_at", e["created_at"])
+        r.hset("entries:" + str(e["id"]), "updated_at", e["updated_at"])
 
 main()
