@@ -70,6 +70,10 @@ def get_isutar_db():
         cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
         cursor.execute('SET NAMES utf8mb4')
 
+        global contlen
+        cursor.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
+        contlen = cursor.fetchall()
+
         return request.isutar_db
 
 @app.teardown_request
@@ -114,8 +118,6 @@ def get_initialize():
     cur.execute('DELETE FROM entry WHERE id > 7101')
     origin = config('isutar_origin')
     urllib.request.urlopen(origin + '/initialize')
-    global contlen
-    contlen = cur.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
     return jsonify(result = 'ok')
 
 @app.route('/')
@@ -272,8 +274,6 @@ def htmlify(content):
         return ''
     global contlen
     keywords = contlen
-    # cur = dbh().cursor()
-    # keywords = cur.fetchall()
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
     kw2sha = {}
     def replace_keyword(m):
@@ -302,7 +302,6 @@ def is_spam_contents(content):
 
     return False
 
-get_initialize()
 if __name__ == "__main__":
     # cProfile.run("app.run()")
     app.run()
