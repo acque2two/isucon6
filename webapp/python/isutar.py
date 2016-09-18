@@ -7,41 +7,44 @@ from gevent import monkey; monkey.patch_all()
 
 app = Flask(__name__)
 
-def dbh():
-    if hasattr(request, 'db'):
-        return request.db
+def get_isutar_db():
+    if hasattr(request, "isutar_db"):
+        return request.isutar_db
     else:
-        request.db = MySQLdb.connect(**{
-            'host': 'localhost',
-            'port':3306,
-            'user': 'isucon',
-            'passwd': 'isucon',
-            'db': 'isutar',
-            'charset': 'utf8mb4',
-            'cursorclass': MySQLdb.cursors.DictCursor,
-            'autocommit': True,
+        request.isutar_db = MySQLdb.connect(**{
+            "host": "localhost",
+            "port": 3306,
+            "user": "isucon",
+            "passwd": "isucon",
+            "db": "isutar",
+            "charset": "utf8mb4",
+            "cursorclass": MySQLdb.cursors.DictCursor,
+            "autocommit": True,
         })
-        cur = request.db.cursor()
-        cur.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
-        cur.execute('SET NAMES utf8mb4')
-        return request.db
+        cursor = request.isutar_db.cursor()
+        cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+        cursor.execute('SET NAMES utf8mb4')
+
+        return request.isutar_db
 
 @app.teardown_request
 def close_db(exception=None):
-    if hasattr(request, 'db'):
-        request.db.close()
+    if hasattr(request, 'isutar_db'):
+        request.isutar_db.close()
 
 @app.route("/initialize")
 def get_initialize():
-    cur = dbh().cursor()
-    cur.execute('TRUNCATE star')
+    cursor = get_isutar_db().cursor()
+    cursor.execute('TRUNCATE star')
+
     return jsonify(status = 'ok')
 
 @app.route("/stars")
 def get_stars():
-    cur = dbh().cursor()
-    cur.execute('SELECT * FROM star WHERE keyword = %s', (request.args['keyword'], ))
-    return jsonify(stars = cur.fetchall())
+    cursor = get_isutar_db().cursor()
+    cursor.execute('SELECT * FROM star WHERE keyword = %s', (request.args['keyword'], ))
+
+    return jsonify(stars = cursor.fetchall())
 
 @app.route("/stars", methods=['POST'])
 def post_stars():
@@ -59,15 +62,28 @@ def post_stars():
         else:
             raise
 
-    cur = dbh().cursor()
-    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, NOW())', (keyword, request.args.get('user', '', )))
+    cursor = get_isutar_db().cursor()
+    cursor.execute(
+"""
+INSERT INTO star (keyword, user_name, created_at)
+VALUES (%s, %s, NOW())
+"""
+        ,
+        (keyword, request.args.get('user', '', ))
+    )
 
     user = request.args.get('user', "")
     if user == None or user == "":
         user = request.form['user']
 
-    cur.execute('INSERT INTO star (keyword, user_name, created_at) VALUES (%s, %s, '
-'NOW())', (keyword, user))
+    cursor.execute(
+"""
+INSERT INTO star (keyword, user_name, created_at)
+VALUES (%s, %s, NOW())
+"""
+        ,
+        (keyword, user)
+    )
 
     return jsonify(result = 'ok')
 

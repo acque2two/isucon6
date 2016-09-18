@@ -52,6 +52,26 @@ def dbh():
         cur.execute('SET NAMES utf8mb4')
         return request.db
 
+def get_isutar_db():
+    if hasattr(request, "isutar_db"):
+        return request.isutar_db
+    else:
+        request.isutar_db = MySQLdb.connect(**{
+            "host": "localhost",
+            "port": 3306,
+            "user": "isucon",
+            "passwd": "isucon",
+            "db": "isutar",
+            "charset": "utf8mb4",
+            "cursorclass": MySQLdb.cursors.DictCursor,
+            "autocommit": True,
+        })
+        cursor = request.isutar_db.cursor()
+        cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+        cursor.execute('SET NAMES utf8mb4')
+
+        return request.isutar_db
+
 @app.teardown_request
 def close_db(exception=None):
     if hasattr(request, 'db'):
@@ -269,12 +289,9 @@ def htmlify(content):
 
 
 def load_stars(keyword):
-    origin = config('isutar_origin')
-    url = "%s/stars" % origin
-    params = urllib.parse.urlencode({'keyword': keyword})
-    with urllib.request.urlopen(url + "?%s" % params) as res:
-        data = json.loads(res.read().decode('utf-8'))
-        return data['stars']
+    cursor = get_isutar_db().cursor()
+    cursor.execute('SELECT * FROM star WHERE keyword = %s', (keyword, ))
+    return cursor.fetchall()
 
 def is_spam_contents(content):
     with urllib.request.urlopen(config('isupam_origin'), urllib.parse.urlencode({ "content": content }).encode('utf-8')) as res:
