@@ -52,6 +52,26 @@ def dbh():
         cur.execute('SET NAMES utf8mb4')
         return request.db
 
+def get_isutar_db():
+    if hasattr(request, "isutar_db"):
+        return request.isutar_db
+    else:
+        request.isutar_db = MySQLdb.connect(**{
+            "host": "localhost",
+            "port": 3306,
+            "user": "isucon",
+            "passwd": "isucon",
+            "db": "isutar",
+            "charset": "utf8mb4",
+            "cursorclass": MySQLdb.cursors.DictCursor,
+            "autocommit": True,
+        })
+        cursor = request.isutar_db.cursor()
+        cursor.execute("SET SESSION sql_mode='TRADITIONAL,NO_AUTO_VALUE_ON_ZERO,ONLY_FULL_GROUP_BY'")
+        cursor.execute('SET NAMES utf8mb4')
+
+        return request.isutar_db
+
 @app.teardown_request
 def close_db(exception=None):
     if hasattr(request, 'db'):
