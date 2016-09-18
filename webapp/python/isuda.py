@@ -11,6 +11,7 @@ import string
 import urllib
 import redis
 from gevent import monkey; monkey.patch_all()
+import redis
 
 static_folder = pathlib.Path(__file__).resolve().parent.parent / 'public'
 app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
@@ -21,6 +22,9 @@ _config = {
     'isutar_origin': "http://localhost:5001",
     'isupam_origin': "http://localhost:5050",
 }
+
+# Redis コネクションプール
+r = redis.Redis(connection_pool=redis.ConnectionPool(unix_socket_path='/tmp/redis.sock'))
 
 def config(key):
     if key in _config:
