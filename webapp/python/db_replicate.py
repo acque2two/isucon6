@@ -62,6 +62,6 @@ def main():
         r.hset("entries:" + str(e["id"]), "created_at", e["created_at"])
         r.hset("entries:" + str(e["id"]), "updated_at", e["updated_at"])
         r.zadd("sorted_entry_ids:keyword_size", len(e["keyword"]), str(e["id"]))
-        r.zadd("sorted_entry_ids:updated_at", updated_at, str(e["id"]))
+        r.zadd("sorted_entry_ids:updated_at", e["updated_at"], str(e["id"]))
 
 main()
