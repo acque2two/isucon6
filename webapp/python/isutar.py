@@ -7,13 +7,15 @@ from gevent import monkey; monkey.patch_all()
 
 app = Flask(__name__)
 
+r = redis.Redis(connection_pool=redis.ConnectionPool(unix_socket_path='/tmp/redis.sock'))
+
 def dbh():
     if hasattr(request, 'db'):
         return request.db
     else:
         request.db = MySQLdb.connect(**{
             'host': 'localhost',
-            'port':3306,
+            'port': 3306,
             'user': 'isucon',
             'passwd': 'isucon',
             'db': 'isutar',
@@ -33,8 +35,7 @@ def close_db(exception=None):
 
 @app.route("/initialize")
 def get_initialize():
-    cur = dbh().cursor()
-    cur.execute('TRUNCATE star')
+    r.
     return jsonify(status = 'ok')
 
 @app.route("/stars")
