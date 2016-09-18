@@ -19,8 +19,8 @@ app = Flask(__name__, static_folder = str(static_folder), static_url_path='')
 app.secret_key = 'tonymoris'
 
 _config = {
-    'db_host':       'localhost',
-    'db_port':       3306,
+    'db_host':       '127.0.0.1',
+    'db_port':       3307,
     'db_user':       "isucon",
     'db_password':   "isucon",
     'isutar_origin': "http://localhost:5001",
@@ -38,8 +38,8 @@ def dbh():
         return request.db
     else:
         request.db = MySQLdb.connect(**{
-            'host': "localhost",
-            'port': 3306,
+            'host': "127.0.0.1",
+            'port': 3307,
             'user': "isucon",
             'passwd': "isucon",
             'db': 'isuda',
@@ -58,7 +58,7 @@ def get_isutar_db():
     else:
         request.isutar_db = MySQLdb.connect(**{
             "host": "localhost",
-            "port": 3306,
+            "port": 3307,
             "user": "isucon",
             "passwd": "isucon",
             "db": "isutar",
@@ -114,6 +114,8 @@ def get_initialize():
     cur.execute('DELETE FROM entry WHERE id > 7101')
     origin = config('isutar_origin')
     urllib.request.urlopen(origin + '/initialize')
+    global contlen
+    contlen = cur.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
     return jsonify(result = 'ok')
 
 @app.route('/')
@@ -268,10 +270,10 @@ def delete_keyword(keyword):
 def htmlify(content):
     if content == None or content == '':
         return ''
-
-    cur = dbh().cursor()
-    cur.execute('SELECT * FROM entry_contlen ORDER BY contlen DESC')
-    keywords = cur.fetchall()
+    global contlen
+    keywords = contlen
+    # cur = dbh().cursor()
+    # keywords = cur.fetchall()
     keyword_re = re.compile("(%s)" % '|'.join([ re.escape(k['keyword']) for k in keywords]))
     kw2sha = {}
     def replace_keyword(m):
@@ -300,6 +302,7 @@ def is_spam_contents(content):
 
     return False
 
+get_initialize()
 if __name__ == "__main__":
     # cProfile.run("app.run()")
     app.run()
