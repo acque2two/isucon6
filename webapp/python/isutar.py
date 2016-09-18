@@ -14,8 +14,8 @@ def dbh():
         request.db = MySQLdb.connect(**{
             'host': 'localhost',
             'port':3306,
-            'user': 'root',
-            'passwd': '',
+            'user': 'isucon',
+            'passwd': 'isucon',
             'db': 'isutar',
             'charset': 'utf8mb4',
             'cursorclass': MySQLdb.cursors.DictCursor,
